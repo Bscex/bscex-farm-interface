@@ -82,7 +82,7 @@ const AccountModal: React.FC<ModalProps> = ({ onDismiss }) => {
                                         </Col>
                                         <Col className="col-7">
                                             <TextMin>
-                                                Released/Lock
+                                                Released/Locked
                                             </TextMin>
                                             {!totalUserLocked.isGreaterThan(0) &&
                                                 <TextMedium>
