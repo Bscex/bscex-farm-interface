@@ -97,36 +97,36 @@ export const supportedPools = [
     addLiquidityLink: 'https://swap.bscex.org/#/add/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587',
     removeLiquidityLink: 'https://swap.bscex.org/#/remove/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
   },
-  // {
-  //   pid: 0,
-  //   lpAddresses: {
-  //     56: '0xa32a983a64ce21834221aa0ad1f1533907553136',
-  //     97: '0xfbAC427F266dcd0d963c080d9Eb1149B5dD28aeC',
-  //   },
-  //   tokenAddresses: {
-  //     56: '0x5ac52ee5b2a633895292ff6d8a89bb9190451587',
-  //     97: '0xEFceA9c937D8a4c91244F16dBA188C33F27A7Dba',
-  //   },
-  //   token2Addresses: {
-  //     56: '0xe9e7cea3dedca5984780bafc599bd69add087d56',
-  //     97: '0xae13d989dac2f0debff460ac112a837c89baa7cd'
-  //   },
-  //   name: 'BSCX - BUSD',
-  //   symbol: 'BSCX-BUSD LP',
-  //   symbolShort: 'BSCX-BUSD',
-  //   description: `Deposit BSCX-BUSD LP Earn BSCX`,
-  //   tokenSymbol: 'BSCX',
-  //   token2Symbol: 'BUSD',
-  //   icon: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
-  //   icon2: 'https://s2.coinmarketcap.com/static/img/coins/128x128/4687.png',
-  //   isHot: true,
-  //   isNew: true,
-  //   protocal: 'BSCEX',
-  //   iconProtocal: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
-  //   pairLink: '/',
-  //   addLiquidityLink: 'https://swap.bscex.org/#/add/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587',
-  //   removeLiquidityLink: 'https://swap.bscex.org/#/remove/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
-  // },
+  {
+    pid: 1,
+    lpAddresses: {
+      56: '0x20781bc3701c5309ac75291f5d09bdc23d7b7fa8',
+      97: '0xfbAC427F266dcd0d963c080d9Eb1149B5dD28aeC',
+    },
+    tokenAddresses: {
+      56: '0x5ac52ee5b2a633895292ff6d8a89bb9190451587',
+      97: '0xEFceA9c937D8a4c91244F16dBA188C33F27A7Dba',
+    },
+    token2Addresses: {
+      56: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+      97: '0xae13d989dac2f0debff460ac112a837c89baa7cd'
+    },
+    name: 'BSCX - WBNB',
+    symbol: 'BSCX-WBNB LP',
+    symbolShort: 'BSCX-WBNB',
+    description: `Deposit BSCX-WBNB LP Earn BSCX`,
+    tokenSymbol: 'BSCX',
+    token2Symbol: 'WBNB',
+    icon: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
+    icon2: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c/logo.png',
+    isHot: true,
+    isNew: true,
+    protocal: 'BSCEX',
+    iconProtocal: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
+    pairLink: '/',
+    addLiquidityLink: 'https://swap.bscex.org/#/add/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    removeLiquidityLink: 'https://swap.bscex.org/#/remove/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
+  },
 ]
 // .map(e => {
 //   if (
