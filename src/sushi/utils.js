@@ -139,6 +139,7 @@ export const getLPValue = async (
   tokenContract,
   token2Contract,
   pid,
+  bscxPrice,
 ) => {
   var usdtAddress = '0xdac17f958d2ee523a2206206994597c13d831ec7'
   var usdcAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
@@ -176,14 +177,11 @@ export const getLPValue = async (
 
   const token2AmountTotal = new BigNumber(lpContractToken2)
     .div(new BigNumber(10).pow(token2Decimals))
-
-  // console.log('token2AmountTotal', token2AmountTotal.toString())
-  // console.log('tokenAmountTotal', tokenAmountTotal.toString())
-
-  var tokenPriceInToken2 = token2AmountTotal.div(tokenAmountTotal)
+  // console.log('bscxPrice: ', bscxPrice.toString())
+  var tokenPriceInToken2 = bscxPrice
   // var tokenPriceInToken2 = tokenAmountTotal.div(token2AmountTotal)
   var totalToken2Value = totalLpToken2Value.div(new BigNumber(10).pow(token2Decimals))
-  var usdValue = token2AmountTotal.times(2);
+  var usdValue = tokenAmountTotal.times(bscxPrice).times(2);
   if (token2Contract._address.toLowerCase() == usdtAddress
     || token2Contract._address.toLowerCase() == usdcAddress) {
     // usdValue = totalToken2Value

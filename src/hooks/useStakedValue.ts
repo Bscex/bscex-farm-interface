@@ -14,6 +14,7 @@ import useSushi from './useSushi'
 import useBlock from './useBlock'
 import axios from 'axios'
 import config from '../config'
+import useBSCXPrice from './useBSCXPrice'
 
 export interface StakedValue {
   tokenAmount: BigNumber
@@ -29,6 +30,8 @@ const useStakedValue = (pid: number) => {
   const [balance, setBalance] = useState<StakedValue>()
   const sushi = useSushi()
   const farms = getFarms(sushi)
+  const bscxPrice = useBSCXPrice()
+  // console.log('bscxPrice22: ', bscxPrice.toString())
   const masterChefContract = getMasterChefContract(sushi)
   const block = 0//useBlock()
 
@@ -52,18 +55,19 @@ const useStakedValue = (pid: number) => {
             tokenContract,
             token2Contract,
             pid,
+            bscxPrice,
           ),
       ),
     )
     // const { data: balances } = await axios.get(`${config.api}/pools/${pid}`)
     setBalance(balances[0])
-  }, [masterChefContract, block, sushi])
+  }, [masterChefContract, block, sushi, bscxPrice])
 
   useEffect(() => {
-    if (masterChefContract && sushi) {
+    if (masterChefContract && sushi && bscxPrice) {
       fetchStakedValue()
     }
-  }, [masterChefContract, block, setBalance, sushi])
+  }, [masterChefContract, block, setBalance, sushi, bscxPrice])
 
   return balance
 }
