@@ -16,7 +16,6 @@ contract BSCXNieuThachSanh is Ownable {
     struct PoolInfo {
         IERC20 lpToken;           // Address of LP token contract.
         IERC20 rewardToken;       // Address of reward token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. Reward to distribute per block.
         uint256 lastRewardBlock;  // Last block number that Reward distribution occurs.
         uint256 accRewardPerShare; // Accumulated Reward per share, times 1e12. See below.
         uint256 rewardPerBlock;
@@ -53,16 +52,11 @@ contract BSCXNieuThachSanh is Ownable {
     uint256 public lockFromBlock;
     uint256 public lockToBlock;
 
-    // The migrator contract. It has a lot of power. Can only be set through governance (owner).
-    IMigratorToBSCXSwap public migrator;
-
     // Info of each pool.
     PoolInfo[] public poolInfo;
     mapping(address => uint256) public poolId1; // poolId1 count from 1, subtraction 1 before using with poolInfo
     // Info of each user that stakes LP tokens. pid => user address => info
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
-    // Total allocation poitns. Must be the sum of all allocation points in all pools.
-    uint256 public totalAllocPoint = 0;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -85,19 +79,6 @@ contract BSCXNieuThachSanh is Ownable {
         return poolInfo.length;
     }
 
-    IERC20 lpToken;           // Address of LP token contract.
-    IERC20 rewardToken;       // Address of reward token contract.
-    uint256 lastRewardBlock;  // Last block number that Reward distribution occurs.
-    uint256 accRewardPerShare; // Accumulated Reward per share, times 1e12. See below.
-    uint256 startBlock;
-    uint256 rewardPerBlock;
-    uint256 percentLockBonusReward;
-    uint256 percentForDev;
-    uint256 burnPercent;
-    uint256 finishBonusAtBlock;
-    uint256[] rewardMultiplier;
-    uint256[] halvingAtBlock;
-
     // Add a new lp to the pool. Can only be called by the owner.
     function add(
         IERC20 _rewardToken,
@@ -107,7 +88,7 @@ contract BSCXNieuThachSanh is Ownable {
         uint256 _percentLockBonusReward,
         uint256 _percentForDev,
         uint256 _burnPercent,
-        uint256 _finishBonusAtBlock,
+        uint256 _halvingAfterBlock,
         uint256[] _rewardMultiplier,
         bool _withUpdate
     ) public onlyOwner {
@@ -117,6 +98,15 @@ contract BSCXNieuThachSanh is Ownable {
         }
         uint256 lastRewardBlock = block.number > _startBlock ? block.number : _startBlock;
         poolId1[address(_lpToken)] = poolInfo.length + 1;
+
+        uint256[] public HALVING_AT_BLOCK;
+        for (uint256 i = 0; i < _rewardMultiplier.length - 1; i++) {
+            uint256 halvingAtBlock = _halvingAfterBlock.mul(i + 1).add(_startBlock);
+            HALVING_AT_BLOCK.push(halvingAtBlock);
+        }
+        uint256 FINISH_BONUS_AT_BLOCK = _halvingAfterBlock.mul(_rewardMultiplier.length - 1).add(_startBlock);
+        HALVING_AT_BLOCK.push(uint256(-1));
+
         poolInfo.push(PoolInfo({
             lpToken: _lpToken,
             rewardToken: _rewardToken,
@@ -127,36 +117,10 @@ contract BSCXNieuThachSanh is Ownable {
             percentLockBonusReward: _percentLockBonusReward,
             percentForDev: _percentForDev,
             burnPercent: _burnPercent,
-            finishBonusAtBlock: _finishBonusAtBlock,
             rewardMultiplier: _rewardMultiplier,
-            halvingAtBlock: halvingAtBlock
+            finishBonusAtBlock: FINISH_BONUS_AT_BLOCK,
+            halvingAtBlock: HALVING_AT_BLOCK
         }));
-    }
-
-    // Update the given pool's BSCX allocation point. Can only be called by the owner.
-    function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyOwner {
-        if (_withUpdate) {
-            massUpdatePools();
-        }
-        totalAllocPoint = totalAllocPoint.sub(poolInfo[_pid].allocPoint).add(_allocPoint);
-        poolInfo[_pid].allocPoint = _allocPoint;
-    }
-
-    // Set the migrator contract. Can only be called by the owner.
-    function setMigrator(IMigratorToBSCXSwap _migrator) public onlyOwner {
-        migrator = _migrator;
-    }
-
-    // Migrate lp token to another lp contract. Can be called by anyone. We trust that migrator contract is good.
-    function migrate(uint256 _pid) public {
-        require(address(migrator) != address(0), "migrate: no migrator");
-        PoolInfo storage pool = poolInfo[_pid];
-        IERC20 lpToken = pool.lpToken;
-        uint256 bal = lpToken.balanceOf(address(this));
-        lpToken.safeApprove(address(migrator), bal);
-        IERC20 newLpToken = migrator.migrate(lpToken);
-        require(bal == newLpToken.balanceOf(address(this)), "migrate: bad");
-        pool.lpToken = newLpToken;
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -178,40 +142,46 @@ contract BSCXNieuThachSanh is Ownable {
             pool.lastRewardBlock = block.number;
             return;
         }
-        uint256 bscxForBurn;
-        uint256 bscxForDev;
-        uint256 bscxForFarmer;
-        (bscxForBurn, bscxForDev, bscxForFarmer) = getPoolReward(pool.lastRewardBlock, block.number, pool.allocPoint);
+        uint256 forBurn;
+        uint256 forDev;
+        uint256 forFarmer;
+        (forBurn, forDev, forFarmer) = getPoolReward(_pid);
 
-        if (bscxForBurn > 0) {
-            bscx.burn(bscxForBurn);
+        if (forBurn > 0) {
+            bscx.burn(forBurn);
         }
 
-        if (bscxForDev > 0) {
+        if (forDev > 0) {
             // Mint unlocked amount for Dev
-            bscx.transfer(devaddr, bscxForDev.mul(100 - PERCENT_LOCK_BONUS_REWARD).div(100));
+            pool.rewardToken.transfer(devaddr, forDev.mul(100 - pool.percentLockBonusReward).div(100));
             //For more simple, I lock reward for dev if mint reward in bonus time
-            farmLock(devaddr, bscxForDev.mul(PERCENT_LOCK_BONUS_REWARD).div(100));
+            farmLock(devaddr, forDev.mul(pool.percentLockBonusReward).div(100));
         }
-        pool.accBSCXPerShare = pool.accBSCXPerShare.add(bscxForFarmer.mul(1e12).div(lpSupply));
+        pool.accRewardPerShare = pool.accRewardPerShare.add(forFarmer.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
     // Return reward multiplier over the given _from to _to block.
-    function getMultiplier(uint256 _from, uint256 _to) public view returns (uint256) {
+    function getMultiplier(
+        uint256 _from,
+        uint256 _to,
+        uint256 _halvingAtBlock,
+        uint256 _rewardMultiplier,
+        uint256 _startBlock
+    ) public view returns (uint256) {
         uint256 result = 0;
-        if (_from < START_BLOCK) return 0;
+        if (_from < _startBlock) return 0;
 
-        for (uint256 i = 0; i < HALVING_AT_BLOCK.length; i++) {
-            uint256 endBlock = HALVING_AT_BLOCK[i];
+        for (uint256 i = 0; i < _halvingAtBlock.length; i++) {
+            uint256 endBlock = _halvingAtBlock[i];
 
             if (_to <= endBlock) {
-                uint256 m = _to.sub(_from).mul(REWARD_MULTIPLIER[i]);
+                uint256 m = _to.sub(_from).mul(_rewardMultiplier[i]);
                 return result.add(m);
             }
 
             if (_from < endBlock) {
-                uint256 m = endBlock.sub(_from).mul(REWARD_MULTIPLIER[i]);
+                uint256 m = endBlock.sub(_from).mul(_rewardMultiplier[i]);
                 _from = endBlock;
                 result = result.add(m);
             }
@@ -220,20 +190,22 @@ contract BSCXNieuThachSanh is Ownable {
         return result;
     }
 
-    function getPoolReward(uint256 _from, uint256 _to, uint256 _allocPoint) public view returns (uint256 forBurn, uint256 forDev, uint256 forFarmer) {
-        uint256 multiplier = getMultiplier(_from, _to);
-        uint256 amount = multiplier.mul(REWARD_PER_BLOCK).mul(_allocPoint).div(totalAllocPoint);
-        uint256 bscxCanMint = bscx.cap().sub(bscx.totalSupply());
+    function getPoolReward(uint256 _pid) public view returns (uint256 forBurn, uint256 forDev, uint256 forFarmer) {
+        PoolInfo pool = poolInfo[_pid];
 
-        if (bscxCanMint < amount) {
+        uint256 multiplier = getMultiplier(pool.from, block.number, pool.halvingAtBlock, pool.rewardMultiplier, pool.startBlock);
+        uint256 amount = multiplier.mul(pool.rewardPerBlock);
+        uint256 rewardCanAlloc = pool.rewardToken.balanceOf(address(this));
+
+        if (rewardCanAlloc < amount) {
             forBurn = 0;
             forDev = 0;
-            forFarmer = bscxCanMint;
+            forFarmer = rewardCanAlloc;
         }
         else {
-            forBurn = amount.mul(burnPercent).div(100);
-            forDev = amount.mul(PERCENT_FOR_DEV).div(100);
-            forFarmer = amount.mul(100 - burnPercent - PERCENT_FOR_DEV).div(100);
+            forBurn = amount.mul(pool.burnPercent).div(100);
+            forDev = amount.mul(pool.percentForDev).div(100);
+            forFarmer = amount.mul(100 - pool.burnPercent - pool.percentForDev).div(100);
         }
     }
 
