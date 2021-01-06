@@ -69,12 +69,13 @@ const PendingRewards: React.FC = () => {
 const Balances = memo(() => {
   const newReward = useNewReward()
   const sushi = useSushi()
-  const totalSupply = useTokenSupply(getSushiAddress(sushi))
+  // const totalSupply = useTokenSupply(getSushiAddress(sushi))
+  let circulatingSupply = useTokenCirculatingSupply(getSushiAddress(sushi))
+  let currentFarmed = circulatingSupply.minus(3200000 * 10 ** 18).times(0.25)
   // const totalLocked = useTokenLocked()
-  const totalLocked = totalSupply.minus(3200000 * 10 ** 18).times(0.75)
+  const totalLocked = circulatingSupply.minus(3200000 * 10 ** 18).times(0.75)
   const totalUserLocked = useTotalLocked()
   const sushiBalance = useTokenBalance(getSushiAddress(sushi))
-  let circulatingSupply = useTokenCirculatingSupply(getSushiAddress(sushi))
   circulatingSupply = circulatingSupply.minus(3200000 * 10 ** 18).times(0.25).plus(3200000 * 10 ** 18)
   const { account, ethereum }: { account: any; ethereum: any } = useWallet()
 
@@ -126,9 +127,9 @@ const Balances = memo(() => {
           </StyledBalance>
         </CardContent>
         <Footnote>
-          Total Supply
+          Total farmed amount
           <FootnoteValue>
-            {totalSupply ? `${parseFloat(getBalanceNumber(totalSupply).toFixed(2)).toLocaleString('en-US')} BSCX` : '~'}
+            {currentFarmed ? `${parseFloat(getBalanceNumber(currentFarmed).toFixed(2)).toLocaleString('en-US')} BSCX` : '~'}
           </FootnoteValue>
         </Footnote>
         <Footnote>
