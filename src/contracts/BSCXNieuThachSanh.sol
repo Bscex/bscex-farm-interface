@@ -213,15 +213,15 @@ contract BSCXNieuThachSanh is Ownable {
     function pendingReward(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accBSCXPerShare = pool.accBSCXPerShare;
+        uint256 accRewardPerShare = pool.accRewardPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply > 0) {
-            uint256 bscxForFarmer;
-            (, , bscxForFarmer) = getPoolReward(pool.lastRewardBlock, block.number, pool.allocPoint);
-            accBSCXPerShare = accBSCXPerShare.add(bscxForFarmer.mul(1e12).div(lpSupply));
+            uint256 forFarmer;
+            (, , forFarmer) = getPoolReward(_pid);
+            accRewardPerShare = accRewardPerShare.add(forFarmer.mul(1e12).div(lpSupply));
 
         }
-        return user.amount.mul(accBSCXPerShare).div(1e12).sub(user.rewardDebt);
+        return user.amount.mul(accRewardPerShare).div(1e12).sub(user.rewardDebt);
     }
 
     function claimReward(uint256 _pid) public {
@@ -235,7 +235,7 @@ contract BSCXNieuThachSanh is Ownable {
         UserInfo storage user = userInfo[_pid][msg.sender];
 
         if (user.amount > 0) {
-            uint256 pending = user.amount.mul(pool.accBSCXPerShare).div(1e12).sub(user.rewardDebt);
+            uint256 pending = user.amount.mul(pool.accRewardPerShare).div(1e12).sub(user.rewardDebt);
             uint256 masterBal = bscx.balanceOf(address(this));
 
             if (pending > masterBal) {
@@ -252,7 +252,7 @@ contract BSCXNieuThachSanh is Ownable {
                 emit SendBSCXReward(msg.sender, _pid, pending, lockAmount);
             }
 
-            user.rewardDebt = user.amount.mul(pool.accBSCXPerShare).div(1e12);
+            user.rewardDebt = user.amount.mul(pool.accRewardPerShare).div(1e12);
         }
     }
 

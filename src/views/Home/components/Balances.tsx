@@ -70,10 +70,12 @@ const Balances = memo(() => {
   const newReward = useNewReward()
   const sushi = useSushi()
   const totalSupply = useTokenSupply(getSushiAddress(sushi))
-  const totalLocked = useTokenLocked()
+  // const totalLocked = useTokenLocked()
+  const totalLocked = totalSupply.minus(3200000 * 10 ** 18).times(0.75)
   const totalUserLocked = useTotalLocked()
   const sushiBalance = useTokenBalance(getSushiAddress(sushi))
-  const circulatingSupply = useTokenCirculatingSupply(getSushiAddress(sushi))
+  let circulatingSupply = useTokenCirculatingSupply(getSushiAddress(sushi))
+  circulatingSupply = circulatingSupply.minus(3200000 * 10 ** 18).times(0.25).plus(3200000 * 10 ** 18)
   const { account, ethereum }: { account: any; ethereum: any } = useWallet()
 
   return (
