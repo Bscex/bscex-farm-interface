@@ -127,6 +127,33 @@ export const supportedPools = [
     addLiquidityLink: 'https://swap.bscex.org/#/add/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
     removeLiquidityLink: 'https://swap.bscex.org/#/remove/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
   },
+  {
+    pid: 2,
+    lpAddresses: {
+      56: '0xeb0bab8f337ea2053457decce15e93005b59326a'
+    },
+    tokenAddresses: {
+      56: '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82'
+    },
+    token2Addresses: {
+      56: '0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
+    },
+    name: 'BSCX - CAKE',
+    symbol: 'BSCX-CAKE LP',
+    symbolShort: 'BSCX-CAKE',
+    description: `Deposit BSCX-CAKE LP Earn BSCX`,
+    tokenSymbol: 'BSCX',
+    token2Symbol: 'CAKE',
+    icon: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
+    icon2: 'https://raw.githubusercontent.com/Bscex/bscex-token-list/master/images/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png',
+    isHot: true,
+    isNew: true,
+    protocal: 'BSCEX',
+    iconProtocal: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
+    pairLink: '/',
+    addLiquidityLink: 'https://swap.bscex.org/#/add/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587',
+    removeLiquidityLink: 'https://swap.bscex.org/#/remove/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
+  },
 ]
 // .map(e => {
 //   if (
