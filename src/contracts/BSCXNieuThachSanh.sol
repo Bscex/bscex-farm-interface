@@ -1,3 +1,258 @@
+// File: @openzeppelin/contracts/token/ERC20/IERC20.sol
+
+pragma solidity ^0.6.6;
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    function totalSupply() external view returns (uint256);
+
+    function balanceOf(address account) external view returns (uint256);
+
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function burn(uint256 amount) external returns (bool);
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+
+pragma solidity ^0.6.0;
+
+library SafeMath {
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
+    }
+
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
+    }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+        // benefit is lost if 'b' is also tested.
+        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+
+        return c;
+    }
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return mod(a, b, "SafeMath: modulo by zero");
+    }
+
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b != 0, errorMessage);
+        return a % b;
+    }
+}
+
+library Address {
+    function isContract(address account) internal view returns (bool) {
+        // This method relies in extcodesize, which returns 0 for contracts in
+        // construction, since the code is only stored at the end of the
+        // constructor execution.
+
+        uint256 size;
+        // solhint-disable-next-line no-inline-assembly
+        assembly { size := extcodesize(account) }
+        return size > 0;
+    }
+
+    function sendValue(address payable recipient, uint256 amount) internal {
+        require(address(this).balance >= amount, "Address: insufficient balance");
+
+        // solhint-disable-next-line avoid-low-level-calls, avoid-call-value
+        (bool success, ) = recipient.call{ value: amount }("");
+        require(success, "Address: unable to send value, recipient may have reverted");
+    }
+    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+      return functionCall(target, data, "Address: low-level call failed");
+    }
+
+    function functionCall(address target, bytes memory data, string memory errorMessage) internal returns (bytes memory) {
+        return _functionCallWithValue(target, data, 0, errorMessage);
+    }
+
+    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
+        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+    }
+
+    function functionCallWithValue(address target, bytes memory data, uint256 value, string memory errorMessage) internal returns (bytes memory) {
+        require(address(this).balance >= value, "Address: insufficient balance for call");
+        return _functionCallWithValue(target, data, value, errorMessage);
+    }
+
+    function _functionCallWithValue(address target, bytes memory data, uint256 weiValue, string memory errorMessage) private returns (bytes memory) {
+        require(isContract(target), "Address: call to non-contract");
+
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, bytes memory returndata) = target.call{ value: weiValue }(data);
+        if (success) {
+            return returndata;
+        } else {
+            // Look for revert reason and bubble it up if present
+            if (returndata.length > 0) {
+                // The easiest way to bubble the revert reason is using memory via assembly
+
+                // solhint-disable-next-line no-inline-assembly
+                assembly {
+                    let returndata_size := mload(returndata)
+                    revert(add(32, returndata), returndata_size)
+                }
+            } else {
+                revert(errorMessage);
+            }
+        }
+    }
+}
+
+pragma solidity ^0.6.0;
+
+library SafeERC20 {
+    using SafeMath for uint256;
+    using Address for address;
+
+    function safeTransfer(IERC20 token, address to, uint256 value) internal {
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
+    }
+
+    function safeBurn(IERC20 token, uint256 value) internal {
+        _callOptionalReturn(token, abi.encodeWithSelector(token.burn.selector, value));
+    }
+
+    function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
+        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
+    }
+
+    function safeApprove(IERC20 token, address spender, uint256 value) internal {
+        require((value == 0) || (token.allowance(address(this), spender) == 0),
+            "SafeERC20: approve from non-zero to non-zero allowance"
+        );
+        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));
+    }
+
+    function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
+        uint256 newAllowance = token.allowance(address(this), spender).add(value);
+        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+    }
+
+    function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
+        uint256 newAllowance = token.allowance(address(this), spender).sub(value, "SafeERC20: decreased allowance below zero");
+        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+    }
+
+    function _callOptionalReturn(IERC20 token, bytes memory data) private {
+        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
+        // we're implementing it ourselves. We use {Address.functionCall} to perform this call, which verifies that
+        // the target address contains contract code and also asserts for success in the low-level call.
+
+        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
+        if (returndata.length > 0) { // Return data is optional
+            // solhint-disable-next-line max-line-length
+            require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
+        }
+    }
+}
+
+// File: @openzeppelin/contracts/GSN/Context.sol
+
+pragma solidity ^0.6.0;
+
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address payable) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes memory) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        return msg.data;
+    }
+}
+
+pragma solidity ^0.6.0;
+
+contract Ownable is Context {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor () internal {
+        address msgSender = _msgSender();
+        _owner = msgSender;
+        emit OwnershipTransferred(address(0), msgSender);
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(_owner == _msgSender(), "Ownable: caller is not the owner");
+        _;
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        emit OwnershipTransferred(_owner, newOwner);
+        _owner = newOwner;
+    }
+}
 
 contract BSCXNieuThachSanh is Ownable {
     using SafeMath for uint256;
@@ -16,6 +271,7 @@ contract BSCXNieuThachSanh is Ownable {
     struct PoolInfo {
         IERC20 lpToken;           // Address of LP token contract.
         IERC20 rewardToken;       // Address of reward token contract.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. reward to distribute per block.
         uint256 lastRewardBlock;  // Last block number that Reward distribution occurs.
         uint256 accRewardPerShare; // Accumulated Reward per share, times 1e12. See below.
         uint256 rewardPerBlock;
@@ -24,17 +280,11 @@ contract BSCXNieuThachSanh is Ownable {
         uint256 burnPercent;
         uint256 finishBonusAtBlock;
         uint256 startBlock;
-        uint256[] rewardMultiplier;
-        uint256[] halvingAtBlock;
         uint256 totalLock;
         uint256 lockFromBlock;
         uint256 lockToBlock;
     }
 
-    mapping(uint256 => uint256) private totalLocks;
-
-    // The BSCX TOKEN!
-    BSCXToken public bscx;
     // Dev address.
     address public devaddr;
 
@@ -43,7 +293,14 @@ contract BSCXNieuThachSanh is Ownable {
     mapping(address => address) public referrers;
     mapping(address => uint256) public poolId1; // poolId1 count from 1, subtraction 1 before using with poolInfo
     // Info of each user that stakes LP tokens. pid => user address => info
-    mapping (uint256 => mapping (address => UserInfo)) public userInfo;
+    mapping(uint256 => mapping (address => UserInfo)) public userInfo;
+
+    mapping(uint256 => uint256[]) public rewardMultipliers;
+    mapping(uint256 => uint256[]) public halvingAtBlocks;
+
+    // Total allocation poitns. Must be the sum of all allocation points in all pools.
+    mapping(IERC20 => uint256) public totalAllocPoints;
+    mapping(IERC20 => uint256) public totalLocks;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -52,10 +309,8 @@ contract BSCXNieuThachSanh is Ownable {
     event Lock(address indexed to, uint256 value);
 
     constructor(
-        BSCXToken _bscx,
         address _devaddr
     ) public {
-        bscx = _bscx;
         devaddr = _devaddr;
     }
 
@@ -68,6 +323,7 @@ contract BSCXNieuThachSanh is Ownable {
         IERC20 _rewardToken,
         IERC20 _lpToken,
         uint256 _startBlock,
+        uint256 _allocPoint,
         uint256 _rewardPerBlock,
         uint256 _percentLockBonusReward,
         uint256 _percentForDev,
@@ -76,38 +332,51 @@ contract BSCXNieuThachSanh is Ownable {
         uint256[] memory _rewardMultiplier,
         bool _withUpdate
     ) public onlyOwner {
-        require(poolId1[address(_lpToken)] == 0, "BSCXNieuThachSanh::add: lp is already in pool");
+         require(poolId1[address(_lpToken)] == 0, "BSCXNieuThachSanh::add: lp is already in pool");
         if (_withUpdate) {
             massUpdatePools();
         }
         uint256 lastRewardBlock = block.number > _startBlock ? block.number : _startBlock;
-        poolId1[address(_lpToken)] = poolInfo.length + 1;
+        uint256 pid = poolInfo.length;
+        poolId1[address(_lpToken)] = pid + 1;
 
-        uint256[] storage HALVING_AT_BLOCK;
+        rewardMultipliers[pid] = _rewardMultiplier;
+
         for (uint256 i = 0; i < _rewardMultiplier.length - 1; i++) {
             uint256 halvingAtBlock = _halvingAfterBlock.mul(i + 1).add(_startBlock);
-            HALVING_AT_BLOCK.push(halvingAtBlock);
+            halvingAtBlocks[pid].push(halvingAtBlock);
         }
-        uint256 FINISH_BONUS_AT_BLOCK = _halvingAfterBlock.mul(_rewardMultiplier.length - 1).add(_startBlock);
-        HALVING_AT_BLOCK.push(uint256(-1));
+        uint256 finishBonusAtBlock = _halvingAfterBlock.mul(_rewardMultiplier.length - 1).add(_startBlock);
+        halvingAtBlocks[pid].push(uint256(-1));
+        totalAllocPoints[_rewardToken] = totalAllocPoints[_rewardToken].add(_allocPoint);
 
         poolInfo.push(PoolInfo({
             lpToken: _lpToken,
             rewardToken: _rewardToken,
             lastRewardBlock: lastRewardBlock,
+            allocPoint: _allocPoint,
             accRewardPerShare: 0,
             startBlock: _startBlock,
             rewardPerBlock: _rewardPerBlock,
             percentLockBonusReward: _percentLockBonusReward,
             percentForDev: _percentForDev,
             burnPercent: _burnPercent,
-            rewardMultiplier: _rewardMultiplier,
-            finishBonusAtBlock: FINISH_BONUS_AT_BLOCK,
-            halvingAtBlock: HALVING_AT_BLOCK,
+            finishBonusAtBlock: finishBonusAtBlock,
             totalLock: 0,
             lockFromBlock: block.number + 10512000,
             lockToBlock: block.number + 10512000 + 10512000
         }));
+    }
+
+    // Update the given pool's BSCX allocation point. Can only be called by the owner.
+    function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyOwner {
+        if (_withUpdate) {
+            massUpdatePools();
+        }
+        PoolInfo storage pool = poolInfo[_pid];
+
+        totalAllocPoints[pool.rewardToken] = totalAllocPoints[pool.rewardToken].sub(pool.allocPoint).add(_allocPoint);
+        pool.allocPoint = _allocPoint;
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -135,7 +404,7 @@ contract BSCXNieuThachSanh is Ownable {
         (forBurn, forDev, forFarmer) = getPoolReward(_pid);
 
         if (forBurn > 0) {
-            bscx.burn(forBurn);
+            pool.rewardToken.burn(forBurn);
         }
 
         if (forDev > 0) {
@@ -180,8 +449,8 @@ contract BSCXNieuThachSanh is Ownable {
     function getPoolReward(uint256 _pid) public view returns (uint256 forBurn, uint256 forDev, uint256 forFarmer) {
         PoolInfo memory pool = poolInfo[_pid];
 
-        uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number, pool.halvingAtBlock, pool.rewardMultiplier, pool.startBlock);
-        uint256 amount = multiplier.mul(pool.rewardPerBlock);
+        uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number, halvingAtBlocks[_pid], rewardMultipliers[_pid], pool.startBlock);
+        uint256 amount = multiplier.mul(pool.rewardPerBlock).mul(pool.allocPoint).div(totalAllocPoints[pool.rewardToken]);
         uint256 rewardCanAlloc = pool.rewardToken.balanceOf(address(this));
 
         if (rewardCanAlloc < amount) {
@@ -196,7 +465,7 @@ contract BSCXNieuThachSanh is Ownable {
         }
     }
 
-    // View function to see pending BSCXs on frontend.
+    // View function to see pending reward on frontend.
     function pendingReward(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
@@ -321,16 +590,6 @@ contract BSCXNieuThachSanh is Ownable {
         user.rewardDebt = 0;
     }
 
-    // Safe bscx transfer function, just in case if rounding error causes pool to not have enough BSCXs.
-    function safeBSCXTransfer(address _to, uint256 _amount) internal {
-        uint256 bscxBal = bscx.balanceOf(address(this));
-        if (_amount > bscxBal) {
-            bscx.transfer(_to, bscxBal);
-        } else {
-            bscx.transfer(_to, _amount);
-        }
-    }
-
     // Update dev address by the previous dev.
     function dev(address _devaddr) public {
         require(msg.sender == devaddr, "dev: wut?");
@@ -340,13 +599,15 @@ contract BSCXNieuThachSanh is Ownable {
     function getNewRewardPerBlock(uint256 pid1) public view returns (uint256) {
         PoolInfo memory pool = poolInfo[pid1];
 
-        uint256 multiplier = getMultiplier(block.number -1, block.number, pool.halvingAtBlock, pool.rewardMultiplier, pool.startBlock);
+        uint256 multiplier = getMultiplier(block.number -1, block.number, halvingAtBlocks[pid1], rewardMultipliers[pid1], pool.startBlock);
         if (pid1 == 0) {
             return multiplier.mul(pool.rewardPerBlock);
         }
         else {
             return multiplier
-                .mul(pool.rewardPerBlock);
+                .mul(pool.rewardPerBlock)
+                .mul(pool.allocPoint)
+                .div(totalAllocPoints[pool.rewardToken]);
         }
     }
 
@@ -375,6 +636,8 @@ contract BSCXNieuThachSanh is Ownable {
         require(_amount <= pool.rewardToken.balanceOf(address(this)), "ERC20: lock amount over blance");
         user.lockAmount = user.lockAmount.add(_amount);
         pool.totalLock = pool.totalLock.add(_amount);
+        totalLocks[pool.rewardToken] = totalLocks[pool.rewardToken].add(_amount);
+
         if (user.lastUnlockBlock < pool.lockFromBlock) {
             user.lastUnlockBlock = pool.lockFromBlock;
         }
@@ -412,19 +675,6 @@ contract BSCXNieuThachSanh is Ownable {
         user.lockAmount = user.lockAmount.sub(amount);
         user.lastUnlockBlock = block.number;
         pool.totalLock = pool.totalLock.sub(amount);
-    }
-
-
-    function setTransferBurnRate(uint256 _tranferBurnRate) public onlyOwner {
-        bscx.setTransferBurnRate(_tranferBurnRate);
-    }
-
-    // In some circumstance, we should not burn BSCX on transfer, eg: Transfer from owner to distribute bounty, from depositing to swap for liquidity
-    function addTransferBurnExceptAddress(address _transferBurnExceptAddress) public onlyOwner {
-        bscx.addTransferBurnExceptAddress(_transferBurnExceptAddress);
-    }
-
-    function removeTransferBurnExceptAddress(address _transferBurnExceptAddress) public onlyOwner {
-        bscx.removeTransferBurnExceptAddress(_transferBurnExceptAddress);
+        totalLocks[pool.rewardToken] = totalLocks[pool.rewardToken].sub(amount);
     }
 }

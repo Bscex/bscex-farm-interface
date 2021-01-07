@@ -20,6 +20,7 @@ const useEarnings = (pid: number) => {
 
   const fetchBalance = useCallback(async () => {
     const balance = await getEarned(masterChefContract, pid, account)
+    console.log('blance: ', balance)
     setBalance(new BigNumber(balance))
   }, [account, masterChefContract, sushi])
 
