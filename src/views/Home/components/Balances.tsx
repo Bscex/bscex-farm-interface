@@ -15,6 +15,7 @@ import useTokenBalance from '../../../hooks/useTokenBalance'
 import useTokenSupply from '../../../hooks/useTokenSupply'
 import useTokenLocked from '../../../hooks/useTokenLocked'
 import useTotalLocked from '../../../hooks/useTotalLocked'
+import useTokenBalanceOf from '../../../hooks/useTokenBalanceOf'
 import useTokenCirculatingSupply from '../../../hooks/useTokenCirculatingSupply'
 import useSushi from '../../../hooks/useSushi'
 import { getNewRewardPerBlock, getSushiAddress, getSushiSupply } from '../../../sushi/utils'
@@ -71,12 +72,13 @@ const Balances = memo(() => {
   const sushi = useSushi()
   // const totalSupply = useTokenSupply(getSushiAddress(sushi))
   let circulatingSupply = useTokenCirculatingSupply(getSushiAddress(sushi))
+  const devBalance = useTokenBalanceOf(getSushiAddress(sushi),'0xdad254728A37D1E80C21AFae688C64d0383cc307');
   let currentFarmed = circulatingSupply.minus(3200000 * 10 ** 18).times(0.25)
   // const totalLocked = useTokenLocked()
   const totalLocked = circulatingSupply.minus(3200000 * 10 ** 18).times(0.75)
   const totalUserLocked = useTotalLocked()
   const sushiBalance = useTokenBalance(getSushiAddress(sushi))
-  circulatingSupply = circulatingSupply.minus(3200000 * 10 ** 18).times(0.25).plus(3200000 * 10 ** 18)
+  circulatingSupply = circulatingSupply.minus(3200000 * 10 ** 18).times(0.25).plus(3200000 * 10 ** 18).minus(devBalance)
   const { account, ethereum }: { account: any; ethereum: any } = useWallet()
 
   return (
