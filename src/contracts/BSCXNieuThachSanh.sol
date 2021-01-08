@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // File: @openzeppelin/contracts/token/ERC20/IERC20.sol
 
 pragma solidity ^0.6.6;
@@ -320,8 +321,8 @@ contract BSCXNieuThachSanh is Ownable {
 
     // Add a new lp to the pool. Can only be called by the owner.
     function add(
-        IERC20 _rewardToken,
         IERC20 _lpToken,
+        IERC20 _rewardToken,
         uint256 _startBlock,
         uint256 _allocPoint,
         uint256 _rewardPerBlock,
@@ -329,26 +330,14 @@ contract BSCXNieuThachSanh is Ownable {
         uint256 _percentForDev,
         uint256 _burnPercent,
         uint256 _halvingAfterBlock,
-        uint256[] memory _rewardMultiplier,
-        bool _withUpdate
+        uint256[] memory _rewardMultiplier
     ) public onlyOwner {
-         require(poolId1[address(_lpToken)] == 0, "BSCXNieuThachSanh::add: lp is already in pool");
-        if (_withUpdate) {
-            massUpdatePools();
-        }
+        require(poolId1[address(_lpToken)] == 0, "BSCXNieuThachSanh::add: lp is already in pool");
         uint256 lastRewardBlock = block.number > _startBlock ? block.number : _startBlock;
         uint256 pid = poolInfo.length;
         poolId1[address(_lpToken)] = pid + 1;
-
-        rewardMultipliers[pid] = _rewardMultiplier;
-
-        for (uint256 i = 0; i < _rewardMultiplier.length - 1; i++) {
-            uint256 halvingAtBlock = _halvingAfterBlock.mul(i + 1).add(_startBlock);
-            halvingAtBlocks[pid].push(halvingAtBlock);
-        }
-        uint256 finishBonusAtBlock = _halvingAfterBlock.mul(_rewardMultiplier.length - 1).add(_startBlock);
-        halvingAtBlocks[pid].push(uint256(-1));
-        totalAllocPoints[_rewardToken] = totalAllocPoints[_rewardToken].add(_allocPoint);
+        setAllocPoints(_rewardToken, _allocPoint);
+        uint256 finishBonusAtBlock = setHalvingAtBlocks(pid, _rewardMultiplier, _halvingAfterBlock, _startBlock);
 
         poolInfo.push(PoolInfo({
             lpToken: _lpToken,
@@ -366,6 +355,21 @@ contract BSCXNieuThachSanh is Ownable {
             lockFromBlock: block.number + 10512000,
             lockToBlock: block.number + 10512000 + 10512000
         }));
+    }
+
+    function setAllocPoints(IERC20 _rewardToken, uint256 _allocPoint) internal onlyOwner {
+        totalAllocPoints[_rewardToken] = totalAllocPoints[_rewardToken].add(_allocPoint);
+    }
+
+    function setHalvingAtBlocks(uint256 _pid, uint256[] memory _rewardMultiplier, uint256 _halvingAfterBlock, uint256 _startBlock) internal onlyOwner returns(uint256) {
+        rewardMultipliers[_pid] = _rewardMultiplier;
+        for (uint256 i = 0; i < _rewardMultiplier.length - 1; i++) {
+            uint256 halvingAtBlock = _halvingAfterBlock.mul(i + 1).add(_startBlock);
+            halvingAtBlocks[_pid].push(halvingAtBlock);
+        }
+        uint256 finishBonusAtBlock = _halvingAfterBlock.mul(_rewardMultiplier.length - 1).add(_startBlock);
+        halvingAtBlocks[_pid].push(uint256(-1));
+        return finishBonusAtBlock;
     }
 
     // Update the given pool's BSCX allocation point. Can only be called by the owner.
@@ -424,7 +428,7 @@ contract BSCXNieuThachSanh is Ownable {
         uint256[] memory _halvingAtBlock,
         uint256[] memory _rewardMultiplier,
         uint256 _startBlock
-    ) public view returns (uint256) {
+    ) public pure returns (uint256) {
         uint256 result = 0;
         if (_from < _startBlock) return 0;
 
@@ -451,7 +455,7 @@ contract BSCXNieuThachSanh is Ownable {
 
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number, halvingAtBlocks[_pid], rewardMultipliers[_pid], pool.startBlock);
         uint256 amount = multiplier.mul(pool.rewardPerBlock).mul(pool.allocPoint).div(totalAllocPoints[pool.rewardToken]);
-        uint256 rewardCanAlloc = pool.rewardToken.balanceOf(address(this));
+        uint256 rewardCanAlloc = pool.rewardToken.balanceOf(address(this)).sub(totalLocks[pool.rewardToken]);
 
         if (rewardCanAlloc < amount) {
             forBurn = 0;
