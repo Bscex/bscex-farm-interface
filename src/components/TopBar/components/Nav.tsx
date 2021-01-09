@@ -9,7 +9,7 @@ const Nav: React.FC = () => {
         Home
       </StyledLink>
       <StyledAbsoluteLink href="https://swap.bscex.org/#/swap">
-        Swap
+        SwapX
       </StyledAbsoluteLink>
     </StyledNav>
   )
