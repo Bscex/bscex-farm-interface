@@ -309,9 +309,7 @@ contract BSCXNieuThachSanh is Ownable {
     event SendReward(address indexed user, uint256 indexed pid, uint256 amount, uint256 lockAmount);
     event Lock(address indexed to, uint256 value);
 
-    constructor(
-        address _devaddr
-    ) public {
+    constructor(address _devaddr) public {
         devaddr = _devaddr;
     }
 
