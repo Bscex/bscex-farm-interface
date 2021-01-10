@@ -130,7 +130,7 @@ const FarmCard: React.FC<FarmCardProps> = ({ farm }) => {
         <CardContent>
           <StyledContent>
             <StyledTopIcon>
-              {farm.isNew && <StyledNewIcon>NEWS</StyledNewIcon>}
+              {farm.isNew && <StyledNewIcon>NEW</StyledNewIcon>}
               {!farm.isHot && <StyledHotIcon>NO REWARD</StyledHotIcon>}
             </StyledTopIcon>
             <div style={{display: 'flex'}}>
