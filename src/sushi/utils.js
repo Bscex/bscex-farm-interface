@@ -337,11 +337,12 @@ export const getNewRewardPerBlock = async (sushi, pid1 = 0) => {
   // }
 }
 
-export const stake = async (masterChefContract, pid, amount, account) => {
+export const stake = async (masterChefContract, pid, amount, account, referral) => {
   return masterChefContract.methods
     .deposit(
       pid,
       new BigNumber(amount).times(new BigNumber(10).pow(18)).toString(),
+      referral,
     )
     .send({ from: account })
     .on('transactionHash', (tx) => {

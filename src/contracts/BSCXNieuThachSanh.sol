@@ -264,7 +264,7 @@ contract BSCXNieuThachSanh is Ownable {
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         uint256 rewardDebtAtBlock; // the last block user stake
-        uint256 lockAmount;
+        uint256 lockAmount;  // Lock amount reward token
         uint256 lastUnlockBlock;
     }
 
@@ -278,7 +278,7 @@ contract BSCXNieuThachSanh is Ownable {
         uint256 rewardPerBlock;
         uint256 percentLockBonusReward;
         uint256 percentForDev;
-        uint256 burnPercent;
+        uint256 percentForBurn;
         uint256 finishBonusAtBlock;
         uint256 startBlock;
         uint256 totalLock;
@@ -299,8 +299,9 @@ contract BSCXNieuThachSanh is Ownable {
     mapping(uint256 => uint256[]) public rewardMultipliers;
     mapping(uint256 => uint256[]) public halvingAtBlocks;
 
-    // Total allocation poitns. Must be the sum of all allocation points in all pools.
+    // Total allocation poitns. Must be the sum of all allocation points in all pools same reward token.
     mapping(IERC20 => uint256) public totalAllocPoints;
+    // Total locks. Must be the sum of all token locks in all pools same reward token.
     mapping(IERC20 => uint256) public totalLocks;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -309,7 +310,9 @@ contract BSCXNieuThachSanh is Ownable {
     event SendReward(address indexed user, uint256 indexed pid, uint256 amount, uint256 lockAmount);
     event Lock(address indexed to, uint256 value);
 
-    constructor(address _devaddr) public {
+    constructor(
+        address _devaddr
+    ) public {
         devaddr = _devaddr;
     }
 
@@ -326,32 +329,32 @@ contract BSCXNieuThachSanh is Ownable {
         uint256 _rewardPerBlock,
         uint256 _percentLockBonusReward,
         uint256 _percentForDev,
-        uint256 _burnPercent,
+        uint256 _percentForBurn,
         uint256 _halvingAfterBlock,
-        uint256[] memory _rewardMultiplier
+        uint256[] memory _rewardMultiplier,
+        uint256 _lockFromBlock,
+        uint256 _lockToBlock
     ) public onlyOwner {
         require(poolId1[address(_lpToken)] == 0, "BSCXNieuThachSanh::add: lp is already in pool");
-        uint256 lastRewardBlock = block.number > _startBlock ? block.number : _startBlock;
-        uint256 pid = poolInfo.length;
-        poolId1[address(_lpToken)] = pid + 1;
+        poolId1[address(_lpToken)] = poolInfo.length + 1;
         setAllocPoints(_rewardToken, _allocPoint);
-        uint256 finishBonusAtBlock = setHalvingAtBlocks(pid, _rewardMultiplier, _halvingAfterBlock, _startBlock);
+        uint256 finishBonusAtBlock = setHalvingAtBlocks(poolInfo.length, _rewardMultiplier, _halvingAfterBlock, _startBlock);
 
         poolInfo.push(PoolInfo({
             lpToken: _lpToken,
             rewardToken: _rewardToken,
-            lastRewardBlock: lastRewardBlock,
+            lastRewardBlock: block.number > _startBlock ? block.number : _startBlock,
             allocPoint: _allocPoint,
             accRewardPerShare: 0,
             startBlock: _startBlock,
             rewardPerBlock: _rewardPerBlock,
             percentLockBonusReward: _percentLockBonusReward,
             percentForDev: _percentForDev,
-            burnPercent: _burnPercent,
+            percentForBurn: _percentForBurn,
             finishBonusAtBlock: finishBonusAtBlock,
             totalLock: 0,
-            lockFromBlock: block.number + 10512000,
-            lockToBlock: block.number + 10512000 + 10512000
+            lockFromBlock: _lockFromBlock,
+            lockToBlock: _lockToBlock
         }));
     }
 
@@ -410,9 +413,7 @@ contract BSCXNieuThachSanh is Ownable {
         }
 
         if (forDev > 0) {
-            // Mint unlocked amount for Dev
             pool.rewardToken.transfer(devaddr, forDev.mul(100 - pool.percentLockBonusReward).div(100));
-            //For more simple, I lock reward for dev if mint reward in bonus time
             farmLock(devaddr, forDev.mul(pool.percentLockBonusReward).div(100), _pid);
         }
         pool.accRewardPerShare = pool.accRewardPerShare.add(forFarmer.mul(1e12).div(lpSupply));
@@ -461,9 +462,9 @@ contract BSCXNieuThachSanh is Ownable {
             forFarmer = rewardCanAlloc;
         }
         else {
-            forBurn = amount.mul(pool.burnPercent).div(100);
+            forBurn = amount.mul(pool.percentForBurn).div(100);
             forDev = amount.mul(pool.percentForDev).div(100);
-            forFarmer = amount.mul(100 - pool.burnPercent - pool.percentForDev).div(100);
+            forFarmer = amount.mul(100 - pool.percentForBurn - pool.percentForDev).div(100);
         }
     }
 
@@ -613,9 +614,13 @@ contract BSCXNieuThachSanh is Ownable {
         }
     }
 
-    function totalLock(uint256 _pid) public view returns (uint256) {
+    function totalLockInPool(uint256 _pid) public view returns (uint256) {
         PoolInfo memory pool = poolInfo[_pid];
         return pool.totalLock;
+    }
+
+    function totalLock(IERC20 _rewardToken) public view returns (uint256) {
+        return totalLocks[_rewardToken];
     }
 
     function lockOf(address _holder, uint256 _pid) public view returns (uint256) {
@@ -680,3 +685,4 @@ contract BSCXNieuThachSanh is Ownable {
         totalLocks[pool.rewardToken] = totalLocks[pool.rewardToken].sub(amount);
     }
 }
+

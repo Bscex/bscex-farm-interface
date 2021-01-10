@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import Button from '../../components/Button'
 import Container from '../../components/Container'
@@ -17,6 +18,17 @@ const Home: React.FC = () => {
   var block = 99999999999
   const launchBlock = START_REWARD_AT_BLOCK
   const [atDate, setDate] = useState<any>()
+
+  function useQuery() {
+    const { search } = useLocation()
+    return React.useMemo(() => new URLSearchParams(search), [search]);
+  }
+  let query = useQuery()
+  let referral = query.get('referral')
+
+  if (referral) {
+    localStorage.setItem('CACHE_BSCX_LAUNCHPOOLX_REFERRAL', referral)
+  }
 
   return (
     <Page>
