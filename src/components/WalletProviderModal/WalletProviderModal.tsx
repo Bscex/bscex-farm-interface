@@ -5,6 +5,7 @@ import { useWallet } from 'use-wallet'
 import metamaskLogo from '../../assets/img/metamask-fox.svg'
 import walletConnectLogo from '../../assets/img/wallet-connect.svg'
 import coin98Logo from '../../assets/img/coin98.png'
+import trustWalletLogo from '../../assets/img/trustwallet.png'
 
 import Button from '../Button'
 import Modal, { ModalProps } from '../Modal'
@@ -59,9 +60,9 @@ const WalletProviderModal: React.FC<ModalProps> = ({ onDismiss }) => {
           <Spacer size="sm" />
           <StyledWalletCard>
             <WalletCard
-              icon={<img src={walletConnectLogo} style={{ height: 24 }} />}
-              onConnect={() => tryConnect('walletconnect')}
-              title="WalletConnect"
+              icon={<img src={trustWalletLogo} style={{ height: 32 }} />}
+              onConnect={() => tryConnect('injected')}
+              title="Trust Wallet"
             />
           </StyledWalletCard>
           <StyledWalletCard>
@@ -69,6 +70,13 @@ const WalletProviderModal: React.FC<ModalProps> = ({ onDismiss }) => {
               icon={<img src={coin98Logo} style={{ height: 32 }} />}
               onConnect={() => tryConnect('injected')}
               title="Coin98 Wallet"
+            />
+          </StyledWalletCard>
+          <StyledWalletCard>
+            <WalletCard
+              icon={<img src={walletConnectLogo} style={{ height: 24 }} />}
+              onConnect={() => tryConnect('walletconnect')}
+              title="WalletConnect"
             />
           </StyledWalletCard>
         </StyledWalletsWrapper>
