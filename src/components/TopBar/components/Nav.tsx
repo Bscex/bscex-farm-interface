@@ -8,7 +8,7 @@ const Nav: React.FC = () => {
       <StyledLink exact activeClassName="active" to="/">
         Home
       </StyledLink>
-      <StyledAbsoluteLink href="https://swapx.bscex.org/#/swap">
+      <StyledAbsoluteLink href="https://swapx.bscex.org">
         SwapX
       </StyledAbsoluteLink>
     </StyledNav>
