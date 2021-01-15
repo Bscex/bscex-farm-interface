@@ -11,6 +11,9 @@ const Nav: React.FC = () => {
       <StyledAbsoluteLink href="https://swapx.bscex.org">
         SwapX
       </StyledAbsoluteLink>
+      <StyledAbsoluteLink href="https://governance.bscex.org">
+        Governance
+      </StyledAbsoluteLink>
     </StyledNav>
   )
 }
