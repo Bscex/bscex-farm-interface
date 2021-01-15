@@ -29,10 +29,10 @@ const TopBar: React.FC<TopBarProps> = ({ onPresentMobileMenu }) => {
           </div>
           <StyledAccountButtonWrapper>
             <AccountButton />
+            <WrapIconMenu>
+              <img onClick={()=> setShowMenu(!showMenu)} className="d-md-none" src={MenuIcon} width="25" style={{ marginLeft: '10px', marginTop: '5px', cursor: 'pointer' }} />
+            </WrapIconMenu>
           </StyledAccountButtonWrapper>
-          <WrapIconMenu>
-            <img onClick={()=> setShowMenu(!showMenu)} className="d-md-none" src={MenuIcon} width="25" style={{ marginTop: 0, cursor: 'pointer' }} />
-          </WrapIconMenu>
         </StyledTopBarInner>
         <WrapMenuMobile>
           <Nav showMenu={showMenu} />
