@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import Bscx from '../../assets/img/logo.svg'
-import BscxLogo from '../../assets/img/logo.svg'
+import BscxLogo from '../../assets/img/logo-icon.svg'
 
 const Logo: React.FC = () => {
   return (

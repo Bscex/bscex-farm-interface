@@ -1,8 +1,9 @@
-import React from 'react'
+import React, {useState} from 'react'
 import styled from 'styled-components'
 
 import Container from '../Container'
 import Logo from '../Logo'
+import MenuIcon from '../../assets/img/menu.svg'
 
 import AccountButton from './components/AccountButton'
 import Nav from './components/Nav'
@@ -12,6 +13,8 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({ onPresentMobileMenu }) => {
+  const [showMenu, setShowMenu] = useState(false)
+
   return (
     <StyledTopBar>
       <Container size="lg">
@@ -20,12 +23,20 @@ const TopBar: React.FC<TopBarProps> = ({ onPresentMobileMenu }) => {
             <StyledLogoWrapper>
               <Logo />
             </StyledLogoWrapper>
-            <Nav />
+            <WrapMenuDesktop>
+              <Nav showMenu={showMenu} />
+            </WrapMenuDesktop>
           </div>
           <StyledAccountButtonWrapper>
             <AccountButton />
           </StyledAccountButtonWrapper>
+          <WrapIconMenu>
+            <img onClick={()=> setShowMenu(!showMenu)} className="d-md-none" src={MenuIcon} width="25" style={{ marginTop: -4, cursor: 'pointer' }} />
+          </WrapIconMenu>
         </StyledTopBarInner>
+        <WrapMenuMobile>
+          <Nav showMenu={showMenu} />
+        </WrapMenuMobile>
       </Container>
     </StyledTopBar>
   )
@@ -36,6 +47,27 @@ const StyledLogoWrapper = styled.div`
   padding: 10px 0;
   @media (max-width: 767px) {
     width: auto;
+  }
+`
+
+const WrapMenuDesktop = styled.div`
+  @media (max-width: 767px) {
+    display: none;
+  }
+`
+
+const WrapMenuMobile = styled.div`
+  display: none;
+  @media (max-width: 767px) {
+    display: block;
+  }
+`
+
+const WrapIconMenu = styled.div`
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
   }
 `
 

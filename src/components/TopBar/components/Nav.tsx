@@ -2,9 +2,13 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 
-const Nav: React.FC = () => {
+interface NavProp {
+    showMenu: boolean
+}
+
+const Nav: React.FC<NavProp> = ({showMenu}) => {
   return (
-    <StyledNav>
+    <StyledNav showMenu={showMenu}>
       <StyledLink exact activeClassName="active" to="/">
         Home
       </StyledLink>
@@ -18,9 +22,17 @@ const Nav: React.FC = () => {
   )
 }
 
-const StyledNav = styled.nav`
+const StyledNav = styled.nav<{ showMenu: boolean }>`
   align-items: center;
   display: flex;
+
+  @media (max-width: 767px) {
+    transition: all .15s linear;
+    flex-direction: column;
+    align-items: flex-start;
+    height: ${({ theme, showMenu }) => (showMenu ? '80px' : '0px')};
+    overflow: hidden;
+  }
 `
 
 const StyledLink = styled(NavLink)`
@@ -100,6 +112,7 @@ const StyledAbsoluteLink = styled.a`
   padding-left: ${(props) => props.theme.spacing[3]}px;
   padding-right: ${(props) => props.theme.spacing[3]}px;
   text-decoration: none;
+
   &:hover {
     color: #ffffff;
   }
@@ -109,6 +122,7 @@ const StyledAbsoluteLink = styled.a`
   @media (max-width: 767px) {
     padding-left: ${(props) => props.theme.spacing[2]}px;
     padding-right: ${(props) => props.theme.spacing[2]}px;
+    padding-top: 10px;
   }
 `
 const StyledAbsoluteLink2 = styled.a`

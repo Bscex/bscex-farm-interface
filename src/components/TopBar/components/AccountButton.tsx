@@ -67,10 +67,6 @@ const BoxWallet = styled.div`
             right: -25%;
         }
     }
-
-    @media (max-width: 767px) {
-      display: none;
-    }
 `
 
 export default AccountButton
