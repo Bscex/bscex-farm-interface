@@ -29,7 +29,7 @@ const StyledNav = styled.nav<{ showMenu: boolean }>`
   @media (max-width: 767px) {
     transition: all .15s linear;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     height: ${({ theme, showMenu }) => (showMenu ? '80px' : '0px')};
     overflow: hidden;
   }
