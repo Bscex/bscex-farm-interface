@@ -94,8 +94,8 @@ export const supportedPools = [
     protocal: 'BSCEX',
     iconProtocal: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
     pairLink: '/',
-    addLiquidityLink: 'https://swap.bscex.org/#/add/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587',
-    removeLiquidityLink: 'https://swap.bscex.org/#/remove/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
+    addLiquidityLink: 'https://swapv1.bscex.org/#/add/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587',
+    removeLiquidityLink: 'https://swapv1.bscex.org/#/remove/0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
   },
   {
     pid: 1,
@@ -124,8 +124,8 @@ export const supportedPools = [
     protocal: 'BSCEX',
     iconProtocal: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
     pairLink: '/',
-    addLiquidityLink: 'https://swap.bscex.org/#/add/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-    removeLiquidityLink: 'https://swap.bscex.org/#/remove/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
+    addLiquidityLink: 'https://swapv1.bscex.org/#/add/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    removeLiquidityLink: 'https://swapv1.bscex.org/#/remove/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
   },
   {
     pid: 2,
@@ -151,8 +151,8 @@ export const supportedPools = [
     protocal: 'BSCEX',
     iconProtocal: 'https://nextyezpay.s3-ap-southeast-1.amazonaws.com/bscx.png',
     pairLink: '/',
-    addLiquidityLink: 'https://swap.bscex.org/#/add/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587',
-    removeLiquidityLink: 'https://swap.bscex.org/#/remove/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
+    addLiquidityLink: 'https://swapv1.bscex.org/#/add/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587',
+    removeLiquidityLink: 'https://swapv1.bscex.org/#/remove/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/0x5Ac52EE5b2a633895292Ff6d8A89bB9190451587'
   },
 ]
 // .map(e => {
