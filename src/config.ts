@@ -4,6 +4,6 @@ export default {
   rpc: 'https://bsc-private-dataseed1.nariox.org',
   // rpc: 'https://bsc-dataseed1.binance.org',
   chainId: 56,
-  api: ''
+  api: 'https://api1.bscex.org/api'
   // api: 'http://localhost:8020'
 }
