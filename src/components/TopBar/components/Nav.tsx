@@ -12,6 +12,9 @@ const Nav: React.FC<NavProp> = ({showMenu}) => {
       <StyledLink exact activeClassName="active" to="/">
         Home
       </StyledLink>
+      <StyledAbsoluteLink href="https://launchpoolx.bscex.org">
+        Launchpoolx V2
+      </StyledAbsoluteLink>
       <StyledAbsoluteLink href="https://swapx.bscex.org">
         SwapX
       </StyledAbsoluteLink>
@@ -30,7 +33,7 @@ const StyledNav = styled.nav<{ showMenu: boolean }>`
     transition: all .15s linear;
     flex-direction: column;
     align-items: flex-end;
-    height: ${({ theme, showMenu }) => (showMenu ? '80px' : '0px')};
+    height: ${({ theme, showMenu }) => (showMenu ? '110px' : '0px')};
     overflow: hidden;
   }
 `
